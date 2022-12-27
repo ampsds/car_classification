@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Cache-Control" content="no-cache">
+    <title>画像判別</title>
+  </head>
+
+  <body>
+    <div>
+      <h1>画像判別</h1>
+      <form method="POST" encType="multipart/form-data" action="/predict">
+        <input accept="image/*" type="file" name="file">
+        <input type="submit" value="Upload">
+      </form>
+    </div>
+  </body>
+</html>

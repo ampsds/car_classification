@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Cache-Control" content="no-cache">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+    <title>画像判別</title>
+  </head>
+
+  <body>
+    <!-- Reactの描画対象を準備しておく -->
+    <div id="app"></div>
+    <!-- React関係のライブラリの読み込み -->
+    <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/classnames/2.2.6/index.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script type="text/babel">
+      const { useState } = React;
+
+      const objectId = "100";
+      //const baseURL = `http://cac1-34-74-204-250.ngrok.io/predict`;
+
+      const baseURL = `https://image-classification-hu0h.onrender.com/predict`;
+
+      function App() {
+        const [posts, setPosts] = useState();
+        const [image, setImage] = useState();
+        const [preview, setPreview] = useState();
+        const [loading, setLoading] = useState(false);
+
+        /*
+        React.useEffect(() => {
+          axios.get(baseURL).then((response) => {
+           setPost(response.data); 
+          });
+        }, []);
+
+        if (!post) return null;
+        */
+
+        //console.log(posts)
+
+        const handleChange = (event) => {
+          setPosts(null)
+          const file = event.target.files[0]
+          setPreview(URL.createObjectURL(file))
+          setImage(file)
+        }
+
+        const Loading = () => {
+          return <p>Loading</p>;
+        };
+
+        const handleClick = (event) => {
+          event.preventDefault
+          setLoading(true)
+          const file = new FormData()
+          file.append('file',image)
+          
+          axios
+          .post(baseURL,file,{
+            "headers": {
+              "Access-Control-Allow-Origin": "*",
+              "content-type": "multipart/form-data",
+            },
+          })
+          .then((response) => {
+            setPosts(response.data); 
+            setLoading(false)
+            //console.log(response.data)
+          });
+        }
+
+        return (
+          <div className="container">
+            <h1>画像判別</h1>
+            {/*<form method="POST" encType="multipart/form-data" action="https://image-classification-hu0h.onrender.com/predict">*/}
+              <p><input accept="image/*" type="file" name="file" onChange={handleChange}/></p>
+              <p><input type="submit" onClick={handleClick}/></p>
+              {loading ? <Loading /> : ""}
+              <p>判定結果：{posts ?posts.class_name:""}</p>
+                            
+              {preview ?
+                <p><img src={preview} width="193" height="130" /></p>
+                :
+                ""
+              }
+              
+              {/*<input type="button" value="Upload" onClick={handleClick}/>*/}
+            {/*</form>*/}
+          </div>
+        );
+      }
+      
+      const root = document.getElementById('app');
+      ReactDOM.render(<App />, root);
+
+  	</script>
+
+  </body>
+</html>
