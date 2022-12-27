@@ -29,26 +29,20 @@ handler = WebhookHandler(CHANNEL_SECRET)
 
 ##推論
 
-#imagenet_class_index = json.load(open('imagenet_class_index.json'))
+imagenet_class_index = json.load(open('index_to_name.json'))
 classes = ['86', 'ハリアー', 'ハイエース', 'ノア', 'プリウス', 'シエンタ', 'ステップワゴン']
 model = resnet50(weights=ResNet50_Weights.IMAGENET1K_V1)
 
-num_ftrs = model.fc.in_features
-model.fc = nn.Linear(num_ftrs, 7) #出力数に応じて変更
+#num_ftrs = model.fc.in_features
+#model.fc = nn.Linear(num_ftrs, 7) #出力数に応じて変更
 
 #model = models.densenet121(pretrained=True)               # Trained on 1000 classes from ImageNet
-#model = resnet50(weights=ResNet50_Weights.IMAGENET1K_V1)
 
-model.load_state_dict(torch.load("./model50_weight_cpu.pth"))
+#model.load_state_dict(torch.load("./model50_weight_cpu.pth"))
 
 
 model.eval()                                              # Turns off autograd and
 
-img_class_map = None
-mapping_file_path = 'index_to_name.json'                  # Human-readable names for Imagenet classes
-if os.path.isfile(mapping_file_path):
-    with open (mapping_file_path) as f:
-        img_class_map = json.load(f)
 
 # Transform input into the form our model expects
 def transform_image(image_bytes):
@@ -65,9 +59,9 @@ def get_prediction(image_bytes):
     tensor = transform_image(image_bytes=image_bytes)
     outputs = model.forward(tensor)
     _, y_hat = outputs.max(1)
-    #predicted_idx = str(y_hat.item())
-    #return imagenet_class_index[predicted_idx]
-    return classes[y_hat.item()]
+    predicted_idx = str(y_hat.item())
+    return imagenet_class_index[predicted_idx]
+    #return classes[y_hat.item()]
 
 @app.route('/', methods=['GET'])
 def index():
@@ -85,8 +79,8 @@ def predict():
     if request.method == 'POST':
         file = request.files['file']
         img_bytes = file.read()
-        #class_id, class_name = get_prediction(image_bytes=img_bytes)
-        class_name = get_prediction(image_bytes=img_bytes)
+        class_id, class_name = get_prediction(image_bytes=img_bytes)
+        #class_name = get_prediction(image_bytes=img_bytes)
         return jsonify({'class_name': class_name})
 
 #LINE BOTウェブフック
