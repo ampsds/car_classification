@@ -89,9 +89,8 @@ def predict():
         file = request.files['file']
         if file is not None:
             input_tensor = transform_image(file)
-            prediction_idx = get_prediction(input_tensor)
-            class_id, class_name = render_prediction(prediction_idx)
-            return jsonify({'class_id': class_id, 'class_name': class_name})
+            class_name  = get_prediction(input_tensor)
+            return jsonify({'class_name': class_name})
 
 #LINE BOTウェブフック
 @app.route("/callback", methods=['POST'])
@@ -121,6 +120,7 @@ def handle_image(event):
         img += chunk
  
     class_name = get_prediction(image_bytes=img)
+    
     line_bot_api.reply_message(
         event.reply_token,
         TextSendMessage(text=class_name))
