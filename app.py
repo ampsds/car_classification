@@ -39,7 +39,7 @@ model.fc = nn.Linear(num_ftrs, 7) #出力数に応じて変更
 #model = models.densenet121(pretrained=True)               # Trained on 1000 classes from ImageNet
 #model = resnet50(weights=ResNet50_Weights.IMAGENET1K_V1)
 
-model.load_state_dict(torch.load("/model50_weight_cpu.pth"))
+model.load_state_dict(torch.load("./model50_weight_cpu.pth"))
 
 
 model.eval()                                              # Turns off autograd and
@@ -120,7 +120,7 @@ def handle_image(event):
         img += chunk
  
     class_name = get_prediction(image_bytes=img)
-    
+
     line_bot_api.reply_message(
         event.reply_token,
         TextSendMessage(text=class_name))
