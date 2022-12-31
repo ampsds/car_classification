@@ -28,19 +28,15 @@ line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(CHANNEL_SECRET)
 
 ##推論
-
-imagenet_class_index = json.load(open('index_to_name.json'))
 classes = ['86', 'ハリアー', 'ハイエース', 'ノア', 'プリウス', 'シエンタ', 'ステップワゴン']
-model = resnet50(weights=ResNet50_Weights.IMAGENET1K_V1)
+model = resnet50(weights=ResNet50_Weights.DEFAULT)
 
-#num_ftrs = model.fc.in_features
-#model.fc = nn.Linear(num_ftrs, 7) #出力数に応じて変更
+num_ftrs = model.fc.in_features
+model.fc = nn.Linear(num_ftrs, 7) #出力数に応じて変更
 
 #model = models.densenet121(pretrained=True)               # Trained on 1000 classes from ImageNet
 
-#model.load_state_dict(torch.load("./model50_weight_cpu.pth"))
-
-
+model.load_state_dict(torch.load("/model50_weight_cpu.pth"))
 model.eval()                                              # Turns off autograd and
 
 
@@ -59,9 +55,9 @@ def get_prediction(image_bytes):
     tensor = transform_image(image_bytes=image_bytes)
     outputs = model.forward(tensor)
     _, y_hat = outputs.max(1)
-    predicted_idx = str(y_hat.item())
-    return imagenet_class_index[predicted_idx]
-    #return classes[y_hat.item()]
+    #predicted_idx = str(y_hat.item())
+    #return imagenet_class_index[predicted_idx]
+    return classes[y_hat.item()]
 
 @app.route('/', methods=['GET'])
 def index():
@@ -69,7 +65,7 @@ def index():
 
 @app.after_request
 def after_request(response):
-  response.headers.add('Access-Control-Allow-Origin', '*')
+  #response.headers.add('Access-Control-Allow-Origin', '*')
   response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
   response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
   return response
@@ -79,8 +75,8 @@ def predict():
     if request.method == 'POST':
         file = request.files['file']
         img_bytes = file.read()
-        class_id, class_name = get_prediction(image_bytes=img_bytes)
-        #class_name = get_prediction(image_bytes=img_bytes)
+        #class_id, class_name = get_prediction(image_bytes=img_bytes)
+        class_name = get_prediction(image_bytes=img_bytes)
         return jsonify({'class_name': class_name})
 
 #LINE BOTウェブフック
@@ -110,7 +106,8 @@ def handle_image(event):
     for chunk in content.iter_content():
         img += chunk
  
-    class_name = get_prediction(image_bytes=img)
+    pred_data = get_prediction(image_bytes=img)
+    class_name = pred_data
 
     line_bot_api.reply_message(
         event.reply_token,
