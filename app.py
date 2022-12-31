@@ -36,7 +36,7 @@ model.fc = nn.Linear(num_ftrs, 7) #出力数に応じて変更
 
 #model = models.densenet121(pretrained=True)               # Trained on 1000 classes from ImageNet
 
-model.load_state_dict(torch.load("/model50_weight_cpu.pth"))
+model.load_state_dict(torch.load("model50_weight_cpu.pth"))
 model.eval()                                              # Turns off autograd and
 
 
